@@ -1,62 +1,181 @@
-# Projeto Produtos
+# Projeto Games
 
-Este repositório consiste em uma aplicação de gerenciamento e manipulação de produtos. O projeto combina scripts de banco de dados PostgreSQL, rotas/endpoints para visualização e cadastro em PHP, além de utilitários em Python para processamento de dados.
+Este repositório contém uma atividade de desenvolvimento web com integração de banco de dados PostgreSQL e API em PHP. O objetivo principal é cadastrar e consultar jogos em um catálogo, armazenando os dados em um banco relacional e expondo operações por meio de endpoints HTTP.
 
----
-
-## 🛠️ Tecnologias Utilizadas
-
-* **PHP:** Responsável pela lógica da aplicação web e integração backend.
-* **Python:** Utilizado para scripts auxiliares ou automações do projeto.
-* **PostgreSQL:** Banco de dados relacional para persistência de dados.
+A estrutura também inclui um script em Python que consulta informações de endereço por CEP usando a API do ViaCEP, funcionando como atividade complementar de consumo de API externa.
 
 ---
 
-## 📁 Estrutura do Repositório
+## 🧩 Objetivo da atividade
+
+O projeto simula um sistema simples de gerenciamento de jogos, com as seguintes operações:
+
+- Cadastro de jogos
+- Consulta de todos os jogos cadastrados
+- Persistência dos dados em PostgreSQL
+- Comunicação backend em PHP
+- Consumo de API externa em Python
+
+---
+
+## 🛠️ Tecnologias utilizadas
+
+- PHP 8+
+- PostgreSQL
+- Python 3+
+- Biblioteca `requests` do Python
+- PDO (PHP Data Objects) para conexão com o banco
+
+---
+
+## 📁 Estrutura do repositório
 
 ```text
-projetoprodutos/
-├── .gitignore                      # Arquivos e pastas ignorados pelo Git
-├── CREATE TABLE produtos(.pgsql    # Script de criação da tabela no PostgreSQL
-├── produtos.php                    # Script PHP para listagem/manipulação de produtos
-└── projeto.py                      # Script em Python com funções do sistema   
+projetogames/
+├── README.md                     # Documentação do projeto
+├── conexao.php                   # Configuração da conexão com o PostgreSQL
+├── games.php                     # API em PHP para cadastro e listagem de jogos
+├── projeto.py                    # Script em Python para consulta de endereço por CEP
+├── CREATE TABLE produtos(.pgsql  # Script SQL de criação da tabela de jogos
+├── .gitignore                    # Arquivos ignorados pelo Git
+└── Untitled-2.pgsql              # Arquivo auxiliar/SQL de apoio
+```
 
-🚀 Como Executar o Projeto
-Pró-requisitos
-Antes de começar, certifique-se de ter instalado em sua máquina:
+---
 
-PHP 8.x+
+## 🗃️ Estrutura da tabela de jogos
 
-Python 3.x+
+O banco de dados utilizado pelo projeto possui uma tabela chamada `games`, com os campos abaixo:
 
-Servidor de Banco de Dados PostgreSQL
-
-1. Configuração do Banco de Dados
-Abra o gerenciador de banco de dados PostgreSQL de sua preferência (ex: pgAdmin, DBeaver) ou utilize o terminal via psql.
-
-Execute o script contido no arquivo CREATE TABLE produtos(.pgsql para estruturar a tabela necessária:
-
-SQL
-CREATE TABLE produtos (
+```sql
+CREATE TABLE games (
     id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
+    titulo VARCHAR(150) NOT NULL,
+    plataforma VARCHAR(80) NOT NULL,
+    genero VARCHAR(80) NOT NULL,
+    desenvolvedora VARCHAR(150) NOT NULL,
+    ano_lancamento INTEGER NOT NULL,
     preco NUMERIC(10, 2) NOT NULL,
-    quantidade INT DEFAULT 0
+    estoque INTEGER NOT NULL DEFAULT 0
 );
-2. Configuração e Execução da Aplicação PHP
-Certifique-se de alterar as credenciais de conexão com o banco de dados dentro do arquivo produtos.php (se aplicável).
+```
 
-Inicie o servidor embutido do PHP na raiz do projeto:
+> O arquivo `CREATE TABLE produtos(.pgsql` contém a estrutura equivalente, adaptada ao nome do projeto.
 
-Bash
+---
+
+## ⚙️ Pré-requisitos
+
+Antes de executar o projeto, certifique-se de ter instalado:
+
+- PHP 8.x ou superior
+- Python 3.x
+- PostgreSQL
+- A biblioteca Python `requests`
+
+Para instalar a dependência do Python:
+
+```bash
+pip install requests
+```
+
+---
+
+## 🧱 Configuração do banco de dados
+
+1. Crie um banco PostgreSQL com o nome desejado.
+2. Ajuste as credenciais de acesso no arquivo `conexao.php`:
+
+```php
+$host = "192.168.10.92";
+$usuario = "postgres";
+$banco = "levelup";
+$senha = "1234";
+```
+
+3. Execute o script SQL para criar a tabela:
+
+```sql
+CREATE TABLE games (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(150) NOT NULL,
+    plataforma VARCHAR(80) NOT NULL,
+    genero VARCHAR(80) NOT NULL,
+    desenvolvedora VARCHAR(150) NOT NULL,
+    ano_lancamento INTEGER NOT NULL,
+    preco NUMERIC(10, 2) NOT NULL,
+    estoque INTEGER NOT NULL DEFAULT 0
+);
+```
+
+---
+
+## 🚀 Executando a API em PHP
+
+Na raiz do projeto, inicie o servidor embutido do PHP:
+
+```bash
 php -S localhost:8000
-Acesse a aplicação no seu navegador:
-http://localhost:8000/produtos.php
+```
 
-3. Execução dos Scripts Python
-Para rodar o script auxiliar em Python:
+### Listar jogos
 
-Bash
+Acesse no navegador ou via `curl`:
+
+```bash
+curl http://localhost:8000/games.php
+```
+
+Esse endpoint retorna todos os jogos em formato JSON.
+
+### Cadastrar jogo
+
+Exemplo de requisição `POST` com JSON:
+
+```bash
+curl -X POST http://localhost:8000/games.php \
+  -H "Content-Type: application/json" \
+  -d '{
+    "titulo": "The Legend of Zelda",
+    "plataforma": "Nintendo Switch",
+    "genero": "Aventura",
+    "desenvolvedora": "Nintendo",
+    "ano_lancamento": 2017,
+    "preco": 299.90,
+    "estoque": 15
+  }'
+```
+
+A API salva o registro no banco PostgreSQL e responde com uma mensagem de sucesso.
+
+---
+
+## 🐍 Executando o script em Python
+
+O arquivo `projeto.py` faz uma consulta a uma API pública do ViaCEP, solicitando o CEP informado pelo usuário.
+
+```bash
 python projeto.py
-📄 Licença
-Este projeto está sob a licença aberta para estudos e modificações.
+```
+
+Exemplo de execução:
+
+```text
+Digite o seu CEP: 01001000
+```
+
+O script retorna informações como logradouro e bairro com base no CEP informado.
+
+---
+
+## 📌 Observações
+
+- O projeto é uma atividade prática de integração entre banco de dados, backend em PHP e consumo de API externa em Python.
+- Para funcionar corretamente em outra máquina, é necessário ajustar as credenciais do banco e verificar se a máquina local ou servidor PostgreSQL está acessível.
+- O arquivo `projeto.py` depende da biblioteca `requests`, então ela deve estar instalada antes da execução.
+
+---
+
+## 📄 Licença
+
+Este projeto foi desenvolvido para fins de estudo e aprendizado em integração de sistemas e manipulação de dados.
